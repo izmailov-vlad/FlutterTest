@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 import 'package:test_flutter_application/bloc/authorization/authorization_bloc.dart';
+import 'package:test_flutter_application/bloc/home/home_bloc.dart';
+import 'package:test_flutter_application/bloc/home/home_state.dart';
 import 'package:test_flutter_application/bloc/splash/splash_bloc.dart';
 import 'package:test_flutter_application/bloc/splash/splash_event.dart';
 import 'package:test_flutter_application/bloc/splash/splash_state.dart';
@@ -29,7 +31,13 @@ class _SplashPageState extends State<SplashPage> {
 
     void _navigateToHomePage() {
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => HomePage()));
+          context,
+          MaterialPageRoute(
+              builder: (context) => BlocProvider<HomePageBloc>(
+                  create: (context) => HomePageBloc(HomePageRefreshingState()),
+                  child: Builder(builder: (_) {
+                    return HomePage();
+                  }))));
     }
 
     return BlocProvider<SplashBloc>(

@@ -4,6 +4,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:test_flutter_application/bloc/authorization/auhtorization_event.dart';
 import 'package:test_flutter_application/bloc/authorization/authorization_bloc.dart';
 import 'package:test_flutter_application/bloc/authorization/authorization_state.dart';
+import 'package:test_flutter_application/bloc/home/home_bloc.dart';
+import 'package:test_flutter_application/bloc/home/home_state.dart';
 import 'package:test_flutter_application/bloc/registration/registration_bloc.dart';
 import 'package:test_flutter_application/view/home_page.dart';
 import 'package:test_flutter_application/view/registration_page.dart';
@@ -36,10 +38,10 @@ class AuthorizationPage extends StatelessWidget {
     }
 
     Widget _button(String text, void func()) {
-      return ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          textStyle: TextStyle(fontSize: 20),
-        ),
+      return TextButton(
+        style: ButtonStyle(
+            backgroundColor: MaterialStateProperty.all(Colors.white),
+            textStyle: MaterialStateProperty.all(TextStyle(fontSize: 15))),
         onPressed: () {
           func();
         },
@@ -57,6 +59,7 @@ class AuthorizationPage extends StatelessWidget {
                     fontSize: 45,
                     fontWeight: FontWeight.bold,
                     color: Colors.white)),
+            heightFactor: 2,
           ),
         ),
       );
@@ -104,49 +107,60 @@ class AuthorizationPage extends StatelessWidget {
 
     Widget _form(String label, void onLoginPressed()) {
       return Container(
-          child: Column(children: [
-        Padding(
-            padding: EdgeInsets.only(bottom: 20, top: 10),
-            child: _input(Icon(Icons.email), "EMAIL", _emailController, false)),
-        Padding(
-            padding: EdgeInsets.only(bottom: 20, top: 10),
-            child: _input(
-                Icon(Icons.lock), "PASSWORD", _passwordController, true)),
-        SizedBox(height: 20),
-        Padding(
-          padding: EdgeInsets.only(left: 20, right: 20),
-          child: Container(
-            height: 50,
-            width: MediaQuery.of(context).size.width,
-            child: _button(label, onLoginPressed),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.only(top: 10),
-          child: Container(
-            child: TextButton(
-              child: Text(
-                'Not registered? Register!',
-                style: TextStyle(color: Colors.white),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+                padding: EdgeInsets.only(bottom: 20, top: 10),
+                child: _input(
+                    Icon(Icons.email), "EMAIL", _emailController, false)),
+            Padding(
+                padding: EdgeInsets.only(bottom: 20, top: 10),
+                child: _input(
+                    Icon(Icons.lock), "PASSWORD", _passwordController, true)),
+            SizedBox(height: 20),
+            Padding(
+              padding: EdgeInsets.only(left: 20, right: 20),
+              child: Container(
+                color: Colors.white30,
+                height: 50,
+                width: MediaQuery.of(context).size.width,
+                child: _button(label, onLoginPressed),
               ),
-              onPressed: () {
-                _onRegisterPressed(context);
-              },
             ),
-          ),
-        )
-      ]));
+            Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: Container(
+                child: TextButton(
+                  child: Text(
+                    'Not registered? Register!',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                  onPressed: () {
+                    _onRegisterPressed(context);
+                  },
+                ),
+              ),
+            )
+          ],
+        ),
+      );
     }
 
     return BlocListener<AuthorizationBloc, AuthorizationState>(
         listener: _onStateChanged,
         child: Scaffold(
             backgroundColor: Theme.of(context).primaryColor,
-            body: new Column(
-              children: <Widget>[
-                _logo(),
-                Expanded(child: _form("LOGIN", _onLoginPressed))
-              ],
+            body: SingleChildScrollView(
+              child: 
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    _logo(),
+                    _form("LOGIN", _onLoginPressed),
+                  ],
+                ),
+              
             )));
   }
 
@@ -168,7 +182,11 @@ class AuthorizationPage extends StatelessWidget {
       _passwordController.clear();
 
       Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => HomePage()));
+          context,
+          MaterialPageRoute(
+              builder: (context) => BlocProvider<HomePageBloc>(
+                  create: (context) => HomePageBloc(HomePageRefreshingState()),
+                  child: HomePage())));
     }
   }
 }

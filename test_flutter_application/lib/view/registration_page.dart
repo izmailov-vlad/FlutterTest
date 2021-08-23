@@ -97,10 +97,8 @@ class _RegistrationWidgetState extends State<RegistrationWidget> {
     }
 
     Widget _button(String text, void func()) {
-      return ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          textStyle: TextStyle(fontSize: 20, color: Colors.black),
-        ),
+      return TextButton(
+        style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.white), textStyle: MaterialStateProperty.all(TextStyle(fontSize: 15))),
         onPressed: () {
           func();
         },
