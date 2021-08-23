@@ -1,5 +1,7 @@
-abstract class UserEvent {}
+abstract class RegistrationEvent {}
 
-class UserLoadEvent extends UserEvent {}
-
-class UserClearEvent extends UserEvent {}
+class RegisterEvent extends RegistrationEvent {
+  String login;
+  String password;
+  RegisterEvent(this.login, this.password);
+}

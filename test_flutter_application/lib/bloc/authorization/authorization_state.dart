@@ -1,13 +1,9 @@
-abstract class ClientState {}
+abstract class AuthorizationState {}
 
-class ClientNotAuthorizedState extends ClientState {}
+class NotAuthorizedState extends AuthorizationState {}
 
-class ClientAuthorizingState extends ClientState {}
+class AuthorizingState extends AuthorizationState {}
 
-class ClientRegistratingState extends ClientState {}
+class AuthorizedState extends AuthorizationState {}
 
-class ClientAuthorizedState extends ClientState {}
-
-class ClientRegisteredState extends ClientState {}
-
-class ClientErrorState extends ClientState {}
+class AuthorizationErrorState extends AuthorizationState {}

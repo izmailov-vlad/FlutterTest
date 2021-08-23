@@ -1,27 +1,24 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:test_flutter_application/bloc/user/registration_event.dart';
-import 'package:test_flutter_application/bloc/user/registration_state.dart';
-import 'package:test_flutter_application/models/user.dart';
-import 'package:test_flutter_application/services/user_repository.dart';
+import 'package:test_flutter_application/bloc/registration/registration_event.dart';
+import 'package:test_flutter_application/bloc/registration/registration_state.dart';
+import 'package:test_flutter_application/models/client_preferences.dart';
 
-class UserBloc extends Bloc<UserEvent, UserState> {
-  final UserRepository userRepository;
+class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
+  final _userRepository = ClientPreferences();
 
-  UserBloc(this.userRepository) : super(UserEmptyState());
+  RegistrationBloc() : super(RegistrationWaitingState());
 
   @override
-  Stream<UserState> mapEventToState(UserEvent event) async* {
-    if (event is UserLoadEvent) {
-      yield UserLoadingState();
+  Stream<RegistrationState> mapEventToState(RegistrationEvent event) async* {
+    if (event is RegisterEvent) {
+      yield RegistrationLoadingState();
       try {
-        final List<User> _loadedUserList = await userRepository.getAllUsers();
-        yield UserLoadedState(loadedUser: _loadedUserList);
+        _userRepository.registerClient(event.login, event.password);
+        yield RegistrationSuccessState();
       } catch (e) {
         print(e.toString());
-        yield UserErrorState();
+        yield RegistrationErrorState();
       }
-    } else if (event is UserClearEvent) {
-      yield UserEmptyState();
     }
   }
 }

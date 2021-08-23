@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:test_flutter_application/bloc/user/registration_bloc.dart';
-import 'package:test_flutter_application/bloc/user/registration_event.dart';
-import 'package:test_flutter_application/bloc/user/registration_state.dart';
+import 'package:test_flutter_application/bloc/home/home_bloc.dart';
+import 'package:test_flutter_application/bloc/home/home_event.dart';
+import 'package:test_flutter_application/bloc/home/home_state.dart';
 import 'package:test_flutter_application/view/user_info.dart';
 
 class UserList extends StatefulWidget {
@@ -15,25 +15,16 @@ class UserList extends StatefulWidget {
 class _UserList extends State<UserList> {
   @override
   Widget build(BuildContext context) {
-    final UserBloc userBloc = BlocProvider.of<UserBloc>(context);
+    HomePageBloc _homePageBloc = BlocProvider.of<HomePageBloc>(context);
+
     GlobalKey<RefreshIndicatorState> refreshKey =
         GlobalKey<RefreshIndicatorState>();
 
-    return BlocBuilder<UserBloc, UserState>(builder: (context, state) {
-      if (state is UserEmptyState) {
-        userBloc.add(UserLoadEvent());
-      }
-
-      if (state is UserLoadingState) {
-        return Center(
-          child: CircularProgressIndicator(),
-        );
-      }
-
-      if (state is UserLoadedState) {
+    return BlocBuilder<HomePageBloc, HomePageState>(builder: (context, state) {
+      if (state is HomePageRefreshedState) {
         return RefreshIndicator(
             onRefresh: () async {
-              userBloc.add(UserLoadEvent());
+              _homePageBloc.add(HomePageRefreshEvent());
             },
             key: refreshKey,
             child: ListView.builder(
@@ -60,7 +51,7 @@ class _UserList extends State<UserList> {
                     )));
       }
 
-      if (state is UserErrorState) {
+      if (state is HomePageErrorState) {
         return Center(
           child: Text('Error fetching users'),
         );

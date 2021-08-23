@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:test_flutter_application/bloc/client/authorization_bloc.dart';
-import 'package:test_flutter_application/bloc/client/auhtorization_event.dart';
-import 'package:test_flutter_application/bloc/client/authorization_state.dart';
+import 'package:test_flutter_application/bloc/authorization/auhtorization_event.dart';
+import 'package:test_flutter_application/bloc/authorization/authorization_bloc.dart';
+import 'package:test_flutter_application/bloc/authorization/authorization_state.dart';
+import 'package:test_flutter_application/bloc/registration/registration_bloc.dart';
 import 'package:test_flutter_application/view/home_page.dart';
 import 'package:test_flutter_application/view/registration_page.dart';
 // import 'package:toast/toast.dart';
@@ -17,7 +18,8 @@ class AuthorizationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ClientBloc clientBloc = context.read<ClientBloc>();
+    final AuthorizationBloc _authorizationBloc =
+        context.read<AuthorizationBloc>();
 
     final _sizeTextBlack = const TextStyle(fontSize: 20.0, color: Colors.black);
     final _sizeTextWhite = const TextStyle(fontSize: 20.0, color: Colors.white);
@@ -26,14 +28,17 @@ class AuthorizationPage extends StatelessWidget {
     late String _password;
 
     void _onRegisterPressed(context) {
-      Navigator.of(context)
-          .push(MaterialPageRoute(builder: (context) => RegistrationWidget()));
+      Navigator.of(context).push(MaterialPageRoute(
+          builder: (context) => BlocProvider<RegistrationBloc>(
+                create: (context) => RegistrationBloc(),
+                child: RegistrationWidget(),
+              )));
     }
 
     Widget _button(String text, void func()) {
       return ElevatedButton(
         style: ElevatedButton.styleFrom(
-          textStyle: TextStyle(fontSize: 20, backgroundColor: Colors.white54),
+          textStyle: TextStyle(fontSize: 20),
         ),
         onPressed: () {
           func();
@@ -93,7 +98,8 @@ class AuthorizationPage extends StatelessWidget {
       _password = _passwordController.text;
 
       if (_login.isEmpty || _password.isEmpty) return;
-      clientBloc.add(ClientAuthorizeEvent(login: _login, password: _password));
+      _authorizationBloc
+          .add(AuthorizeEvent(login: _login, password: _password));
     }
 
     Widget _form(String label, void onLoginPressed()) {
@@ -132,7 +138,7 @@ class AuthorizationPage extends StatelessWidget {
       ]));
     }
 
-    return BlocListener<ClientBloc, ClientState>(
+    return BlocListener<AuthorizationBloc, AuthorizationState>(
         listener: _onStateChanged,
         child: Scaffold(
             backgroundColor: Theme.of(context).primaryColor,
@@ -144,8 +150,8 @@ class AuthorizationPage extends StatelessWidget {
             )));
   }
 
-  void _onStateChanged(BuildContext context, ClientState state) {
-    if (state == ClientErrorState()) {
+  void _onStateChanged(BuildContext context, AuthorizationState state) {
+    if (state is AuthorizationErrorState) {
       Fluttertoast.showToast(
           msg: "Error! Try Again",
           toastLength: Toast.LENGTH_LONG,
@@ -155,11 +161,14 @@ class AuthorizationPage extends StatelessWidget {
           textColor: Colors.white,
           fontSize: 16.0);
     }
-    if (state == ClientAuthorizedState()) {
+    if (state is AuthorizedState) {
+      print("authorize success");
+
       _emailController.clear();
       _passwordController.clear();
-      Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => HomePage()));
+
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => HomePage()));
     }
   }
 }

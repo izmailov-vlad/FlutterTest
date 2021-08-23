@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:test_flutter_application/bloc/client/authorization_bloc.dart';
-import 'package:test_flutter_application/bloc/client/auhtorization_event.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
+import 'package:test_flutter_application/bloc/authorization/authorization_bloc.dart';
+import 'package:test_flutter_application/bloc/registration/registration_bloc.dart';
+import 'package:test_flutter_application/bloc/registration/registration_event.dart';
+import 'package:test_flutter_application/bloc/registration/registration_state.dart';
 import 'package:test_flutter_application/view/authorization_page.dart';
-import 'package:test_flutter_application/view/home_page.dart';
-// import 'package:toast/toast.dart';
 
 class RegistrationWidget extends StatefulWidget {
-
   RegistrationWidget({Key? key}) : super(key: key);
 
   @override
-  _RegistrationWidgetState createState() =>_RegistrationWidgetState();
+  _RegistrationWidgetState createState() => _RegistrationWidgetState();
 }
 
 class _RegistrationWidgetState extends State<RegistrationWidget> {
-  ClientBloc _clientBloc = ClientBloc();
-
   final _sizeTextBlack = const TextStyle(fontSize: 20.0, color: Colors.black);
   final _sizeTextWhite = const TextStyle(fontSize: 20.0, color: Colors.white);
 
@@ -24,38 +24,45 @@ class _RegistrationWidgetState extends State<RegistrationWidget> {
   TextEditingController _passwordConfirmationController =
       TextEditingController();
 
-  late String _email;
+  late String _login;
   late String _password;
   late String _passwordConfiramtion;
 
   @override
   Widget build(BuildContext context) {
+    final _registrationBloc = Provider.of<RegistrationBloc>(context);
 
     Widget _passwordMismatch() {
       return Container(
         alignment: Alignment.bottomCenter,
-        child: Row( 
-          children: <Widget>[
-          Text("Пароли не совпадают", style: TextStyle(color: Colors.red),)
+        child: Row(children: <Widget>[
+          Text(
+            "Пароли не совпадают",
+            style: TextStyle(color: Colors.red),
+          )
         ]),
-       );
+      );
     }
 
-    void _onRegisterPressed() async {
-      _email = _emailController.text;
+    void _onRegisterPressed() {
+      _login = _emailController.text;
       _password = _passwordController.text;
       _passwordConfiramtion = _passwordConfirmationController.text;
 
-      if(_passwordConfiramtion != _password) _passwordMismatch();
+      if (_passwordConfiramtion != _password) _passwordMismatch();
 
-      if(_email.isNotEmpty && _password.isNotEmpty && _passwordConfiramtion.isNotEmpty) {
-        _clientBloc.add(ClientRegisterEvent(login: _email, password: _password));
+      if (_login.isNotEmpty &&
+          _password.isNotEmpty &&
+          _passwordConfiramtion.isNotEmpty) {
+        _registrationBloc.add(RegisterEvent(_login, _password));
       }
 
       _emailController.clear();
       _passwordController.clear();
+    }
 
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) => AuthorizationPage()));
+    void _onAuthorizationPressed() {
+      Navigator.pop(context);
     }
 
     Widget _input(Icon icon, String hint, TextEditingController controller,
@@ -142,19 +149,39 @@ class _RegistrationWidgetState extends State<RegistrationWidget> {
       );
     }
 
-    return new MaterialApp(
-      home: new Scaffold(
-          backgroundColor: Theme.of(context).primaryColor,
-          body: new Column(
-            children: <Widget>[
-              _logo(),
-              _form("REGISTER", _onRegisterPressed),
-              TextButton(onPressed: () {
-                Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) => AuthorizationPage()));
-              }, child: Text("Authorize", style: TextStyle(color: Colors.white),))
-            ],
-          )),
-    );
+    return BlocListener<RegistrationBloc, RegistrationState>(
+        listener: _onStateChanged,
+        child: Scaffold(
+            backgroundColor: Theme.of(context).primaryColor,
+            body: new Column(
+              children: <Widget>[
+                _logo(),
+                _form("REGISTER", _onRegisterPressed),
+                TextButton(
+                    onPressed: () {
+                      _onAuthorizationPressed();
+                    },
+                    child: Text(
+                      "Authorize",
+                      style: TextStyle(color: Colors.white),
+                    ))
+              ],
+            )));
+  }
+
+  void _onStateChanged(BuildContext context, RegistrationState state) {
+    if (state is RegistrationSuccessState) {
+      Navigator.pop(context);
+    }
+    if (state is RegistrationErrorState) {
+      Fluttertoast.showToast(
+          msg: "Error! Try Again",
+          toastLength: Toast.LENGTH_LONG,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0);
+    }
   }
 }
