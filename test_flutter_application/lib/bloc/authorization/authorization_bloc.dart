@@ -13,7 +13,7 @@ class AuthorizationBloc extends Bloc<AuthorizationEvent, AuthorizationState> {
     if (event is AuthorizeEvent) {
       yield AuthorizingState();
       try {
-        _clientPreferences.authorizeClient(event.login, event.password);
+        await _clientPreferences.authorizeClient(event.login, event.password);
         yield AuthorizedState();
       } catch (e) {
         print(e.toString());

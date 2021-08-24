@@ -22,7 +22,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _searchQuery = TextEditingController();
   final _clientPreferences = ClientPreferences();
-
   Widget appBarTitle = Text(
     "Search",
     style: TextStyle(color: Colors.white),
@@ -65,7 +64,10 @@ class _HomePageState extends State<HomePage> {
                     hintStyle: new TextStyle(color: Colors.white)),
               );
             }
-            return appBarTitle;
+            return Text(
+              ClientPreferences.login,
+              style: TextStyle(color: Colors.white),
+            );
           },
         ),
         actions: <Widget>[
@@ -98,8 +100,8 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: BlocBuilder<HomePageBloc, HomePageState>(
-        builder: (context, state) {
+      body: BlocConsumer<HomePageBloc, HomePageState>(
+        listener: (context, state) {
           if (state is HomePageLogoutSuccessState) {
             Navigator.pushReplacement(
                 context,
@@ -108,7 +110,8 @@ class _HomePageState extends State<HomePage> {
                         create: (context) => AuthorizationBloc(),
                         child: AuthorizationPage())));
           }
-
+        },
+        builder: (context, state) {
           if (state is HomePageRefreshingState) {
             Provider.of<HomePageBloc>(context)
                 .add(HomePageRefreshEvent(true, false, false, false, ""));
@@ -160,9 +163,19 @@ class ChildItem extends StatelessWidget {
             builder: (context) =>
                 UserInfo(user.name, user.location, user.picture)));
       },
-      leading: Image.network(user.picture.large),
+      leading: ClipRRect(
+          borderRadius: BorderRadius.circular(16.0),
+          child: Image.network(user.picture.large)),
       title: Column(
-        children: [Text(user.name.first), Text(user.location.city)],
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          Padding(padding: EdgeInsets.fromLTRB(0, 20, 0, 0)),
+          Text(
+            user.name.first,
+          ),
+          Text(user.location.city),
+          Padding(padding: EdgeInsets.fromLTRB(0, 0, 0, 20))
+        ],
       ),
     );
   }

@@ -5,45 +5,43 @@ class ClientPreferences {
       SharedPreferences.getInstance();
   late SharedPreferences prefs;
 
-  String _login = "";
-  String _password = "";
+  static String login = "";
 
-  ClientPreferences() {
-    _initPrefs();
-  }
+  // ClientPreferences() {
+  //   _initPrefs();
+  // }
 
-  String get login => _login;
+  // Future<void> _initPrefs() async {
+  //   prefs = await _sharedPreferences;
+  // }
 
-  Future<void> _initPrefs() async {
+  Future checkUserActive() async {
     prefs = await _sharedPreferences;
+    if(prefs.getString("login") != "authorized") throw Exception("User is not authorized");
   }
 
-  checkUserActive() {
-    if (prefs.getString("login") == "authorized") {
-      print("client authorized");
-      throw Exception("User is not authorized");
-    }
-  }
-
-  authorizeClient(String login, String password) {
-    if (prefs.getString(login) == null) throw Exception("User doesn't exist");
-    if (prefs.getString(login) == password) {
+  authorizeClient(String _login, String password) async{
+    prefs = await _sharedPreferences;
+    if (prefs.getString(_login) == null) throw Exception("User doesn't exist");
+    if (prefs.getString(_login) == password) {
       prefs.setString("login", "authorized");
-      _login = login;
-      _password = password;
+      login = _login;
     }
   }
 
-  logoutClient() {
-    _login = "";
-    _password = "";
+  logoutClient() async {
+    prefs = await _sharedPreferences;
+    prefs.setString("login", "unauthorized");
+    login = "";
   }
 
-  deleteUser() {
-    prefs.setString(_login, "");
+  deleteUser() async{
+    prefs = await _sharedPreferences;
+    prefs.setString(login, "");
   }
 
-  registerClient(String login, String password) {
+  registerClient(String login, String password) async {
+    prefs = await _sharedPreferences;
     if (prefs.getString(login) != null) throw Exception("User already exist");
     prefs.setString(login, password);
   }

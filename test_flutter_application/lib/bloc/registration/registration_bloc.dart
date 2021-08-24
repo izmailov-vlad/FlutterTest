@@ -11,9 +11,10 @@ class RegistrationBloc extends Bloc<RegistrationEvent, RegistrationState> {
   @override
   Stream<RegistrationState> mapEventToState(RegistrationEvent event) async* {
     if (event is RegisterEvent) {
+    
       yield RegistrationLoadingState();
       try {
-        _userRepository.registerClient(event.login, event.password);
+        await _userRepository.registerClient(event.login, event.password);
         yield RegistrationSuccessState();
       } catch (e) {
         print(e.toString());

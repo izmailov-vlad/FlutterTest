@@ -20,6 +20,10 @@ class AuthorizationPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    AnimationController _controller;
+    Animation _myAnimation;
+
     final AuthorizationBloc _authorizationBloc =
         context.read<AuthorizationBloc>();
 
@@ -28,6 +32,7 @@ class AuthorizationPage extends StatelessWidget {
 
     late String _login;
     late String _password;
+  
 
     void _onRegisterPressed(context) {
       Navigator.of(context).push(MaterialPageRoute(
@@ -101,6 +106,7 @@ class AuthorizationPage extends StatelessWidget {
       _password = _passwordController.text;
 
       if (_login.isEmpty || _password.isEmpty) return;
+    
       _authorizationBloc
           .add(AuthorizeEvent(login: _login, password: _password));
     }
